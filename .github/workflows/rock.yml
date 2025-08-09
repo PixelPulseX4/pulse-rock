@@ -33,12 +33,11 @@ jobs:
           
       - name: "🔐 Configure SSH Neural Interface"
         run: |
-          # Create SSH directory with proper permissions
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           
           # Install private key from Supercomputer vault
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[$label].ssh_priv_key' >~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           
           # Load known hosts from quantum memory
