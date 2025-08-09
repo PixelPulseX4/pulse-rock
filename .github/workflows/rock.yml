@@ -35,8 +35,12 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
+          config=$(echo "${{ secrets.CONFIG }}" | jq -rc --arg l "${{ inputs.config_label }}" '.[] | select(.label==$l)')
+          echo "$config"
+          exit 1
           
           # Install private key from Supercomputer vault
+          config=$(echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[] | select(.label==$label')")
           echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[$label].ssh_priv_key' >~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           
