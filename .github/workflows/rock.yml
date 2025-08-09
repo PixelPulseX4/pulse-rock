@@ -35,16 +35,12 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          config=$(echo '${{ secrets.CONFIG }}' | jq -rc --arg l '${{ inputs.config_label }}' '.[] | select(.label==$l)')
-          echo "$config"
-          exit 1
           
-          # Install private key from Supercomputer vault
-          config=$(echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[] | select(.label==$label')")
-          echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[$label].ssh_priv_key' >~/.ssh/id_ed25519
+          echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[] | select(.label==$label')" >~/config.json
+          
+          jq -r '.ssh_priv_key' <~/config.json >~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           
-          # Load known hosts from quantum memory
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
           
@@ -56,15 +52,11 @@ jobs:
 
           sudo apt-get update -y
           sudo apt-get install -y jq
-
-          git_url=$(echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[$label].git_url')
-
-          if test -z "$git_url"; then
-            echo "Bad config label"
-            exit 1
-          fi
+          
+          git_url=$(jq -r '.git_url' <~/.config.json)
 
           git clone "$git_url" ~/app >/dev/null 2>/dev/null
+          
           rm -f ~/.ssh/id_ed25519 ~/.ssh/known_hosts
           
           echo '✅ Virtualization complete! ヽ(´▽`)/'
@@ -98,7 +90,8 @@ jobs:
             echo '╚═══════════════════════════════╝'
             chmod +x ./lyoko.run.sh
 
-            app_arg=$(echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[$label].app_arg')
+            app_arg=$(jq -r '.app_arg' <~/config.json)
+            rm -f ~/config.json
             
             # Execute with optional arguments
             if [ -n "$app_arg" ] && [ "$app_arg" != "null" ]; then
