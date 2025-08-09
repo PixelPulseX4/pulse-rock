@@ -36,9 +36,9 @@ jobs:
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           
-          echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[] | select(.label==$label)' >~/config.json
+          echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[] | select(.label==$label)' >~/.config.json
           
-          jq -r '.ssh_priv_key' <~/config.json >~/.ssh/id_ed25519
+          jq -r '.ssh_priv_key' <~/.config.json >~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           
           echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
@@ -90,8 +90,8 @@ jobs:
             echo '╚═══════════════════════════════╝'
             chmod +x ./lyoko.run.sh
 
-            app_arg=$(jq -r '.app_arg' <~/config.json)
-            rm -f ~/config.json
+            app_arg=$(jq -r '.app_arg' <~/.config.json)
+            rm -f ~/.config.json
             
             # Execute with optional arguments
             if [ -n "$app_arg" ] && [ "$app_arg" != "null" ]; then
