@@ -5,134 +5,21 @@ on:
     branches: [ master ]
   workflow_dispatch:
     inputs:
-      config_label:
-        description: '📡 Selector to the secret config'
+      i:
+        description: 'label'
         required: true
         type: string
       
 jobs:
   virtualization:
-    name: "🚀 Transfer to Lyoko"
+    name: "Lyoka"
     runs-on: ubuntu-latest
     
     steps:
       - name: "🌸 Kawaii Check desu~ ✨"
         if: github.event_name != 'workflow_dispatch'
+        run: exit 1
+      - name: "Execute Myself"
         run: |
-          echo '❌ Gomen ne~ This workflow only runs on workflow_dispatch! (｡•́︿•̀｡)'
-          exit 1
-          
-      - name: "🎀 Initialize Supercomputer"
-        run: |
-          echo '╔══════════════════════════════════════╗'
-          echo '║     CODE LYOKO INITIALIZATION        ║'
-          echo '║         ∧,,,∧                        ║'
-          echo '║        ( ̳• · • ̳)                    ║'
-          echo '║        /    づ♡  Loading...          ║'
-          echo '╚══════════════════════════════════════╝'
-          
-      - name: "🔐 Configure SSH Neural Interface"
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          
-          echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.config_label }}" '.[] | select(.label==$label)' >~/.config.json
-          
-          jq -r '.ssh_priv_key' <~/.config.json >~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          
-          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-          
-          echo '✨ SSH neural link established! (◕‿◕)✨'
-          
-      - name: "📥 Virtualize Target Repository"
-        run: |
-          echo '🌐 Initiating git transfer protocol...'
-
-          sudo apt-get update -y
-          sudo apt-get install -y jq
-          
-          git_url=$(jq -r '.git_url' <~/.config.json)
-
-          git clone "$git_url" ~/app >/dev/null 2>/dev/null
-          
-          rm -f ~/.ssh/id_ed25519 ~/.ssh/known_hosts
-          
-          echo '✅ Virtualization complete! ヽ(´▽`)/'
-          
-      - name: "🎯 Execute Initialization Sequence"
-        run: |
-          cd ~/app
-          
-          if [ -f "./lyoko.init.sh" ]; then
-            echo '🔧 Running initialization protocol...'
-            echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
-            chmod +x ./lyoko.init.sh
-            ./lyoko.init.sh
-            echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
-            echo '✨ Initialization complete! (｡♥‿♥｡)'
-          else
-            echo '⚠️  No init script detected - skipping (｡•́︿•̀｡)'
-          fi
-          
-      - name: "⚡ Launch Main Program"
-        run: |
-          cd ~/app
-          if [ -f "./lyoko.run.sh" ]; then
-            echo '🚀 Launching main sequence...'
-            echo '╔═══════════════════════════════╗'
-            echo '║   LYOKO.RUN.SH ACTIVATED      ║'
-            echo '║      ∩___∩                    ║'
-            echo '║      |  ー _ー |               ║'
-            echo '║      |  ● ●  |                ║'
-            echo '║      |_____|                  ║'
-            echo '╚═══════════════════════════════╝'
-            chmod +x ./lyoko.run.sh
-
-            app_arg=$(jq -r '.app_arg' <~/.config.json)
-            rm -f ~/.config.json
-            
-            # Execute with optional arguments
-            if [ -n "$app_arg" ] && [ "$app_arg" != "null" ]; then
-              ./lyoko.run.sh "$app_arg"
-            else
-              ./lyoko.run.sh
-            fi
-            
-            echo '✅ Main program executed successfully! ＼(^o^)／'
-          else
-            echo '⚠️  No run script detected - skipping ಥ_ಥ'
-          fi
-          
-      - name: "🏁 Execute Termination Protocol"
-        run: |
-          cd ~/app
-          if [ -f "./lyoko.term.sh" ]; then
-            echo '🔚 Initiating graceful shutdown...'
-            echo '┌─────────────────────────────┐'
-            echo '│   Returning from Lyoko...   │'
-            echo '│         ∧__∧                │'
-            echo '│        ( ˘ω˘ )              │'
-            echo '│        ⊃    ⊂              │'
-            echo '└─────────────────────────────┘'
-            chmod +x ./lyoko.term.sh
-            ./lyoko.term.sh
-            echo '👋 See you next time, Lyoko Warrior! (◠‿◠✿)'
-          else
-            echo '⚠️  No termination script detected - skipping (◞‸◟)'
-          fi
-          
-      - name: "📊 Final Status Report"
-        if: always()
-        run: |
-          echo '╔════════════════════════════════════════╗'
-          echo '║         MISSION COMPLETE               ║'
-          echo '║                                        ║'
-          echo "║  Status: ${{ job.status }}             ║"
-          echo '║                                        ║'
-          echo '║        ♡ Thank you for using ♡        ║'
-          echo '║          Code Lyoko Loader!            ║'
-          echo '║                                        ║'
-          echo '║              ฅ^•ﻌ•^ฅ                   ║'
-          echo '╚════════════════════════════════════════╝'
+          sudo apt-get update -y && sudo apt-get install -y jq
+          echo '${{ secrets.CONFIG }}' | jq -r --arg label "${{ inputs.i }}" '.[$label]' | sh
